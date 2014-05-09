@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Milestones</title>
+</head>
+<body>
+
+    <h1>Milestones</h1>
+
+    <div id="y">
+        1973
+    </div>
+    <div id="m">
+        4
+    </div>
+    <div id="d">
+        27
+    </div>
+
+    <div id="calc">
+
+
+    Calculate dates
+
+
+    </div>
+
+
+
+    <div>
+
+    </div>
+
+<script src="lodash.min.js"></script>
+<script>
+/*global Date, _, console */
+//var array = [{id: 1 date: Mar 12 2012 10:00:00 AM}{id: 2 date: Mar 8 2012 08:00:00 AM}];
+// array.sort(function(a,b){
+//   // Turn your strings into dates, and then subtract them
+//   // to get a value that is either negative, positive, or zero.
+//   return new Date(b.date) - new Date(a.date);
+// });
+
+    // http://www.timeanddate.com/date/birthdayresult.html?d1=27&m1=05&y1=1973&h1=&i1=&s1=&type=0&gran=5
+
+
+
+Date.prototype.addSeconds = function (h) {
+    var x = new Date(this);
+    x.setSeconds(x.getSeconds() + h);
+    return x;
+};
+
+Date.prototype.addMinutes = function (h) {
+    var x = new Date(this);
+    x.setMinutes(x.getMinutes() + h);
+    return x;
+};
+
+Date.prototype.addHours = function (h) {
+    var x = new Date(this);
+    x.setHours(x.getHours() + h);
+    return x;
+};
+
+Date.prototype.addDays = function (m) {
+    var x = new Date(this);
+    x.setDate(x.getDate() + m);
+    return x;
+};
+
+Date.prototype.addWeeks = function (m) {
+    var x = new Date(this);
+    x.setDate(x.getDate() + (m * 7));
+    return x;
+};
+
+Date.prototype.addMonths = function (m) {
+    var x = new Date(this);
+    x.setMonth(x.getMonth() + m);
+    return x;
+};
+
+Date.prototype.addYears = function (m) {
+    var x = new Date(this);
+    x.setFullYear(x.getFullYear() + m);
+    return x;
+};
+
+
+(function (doc) {
+
+    'use strict';
+
+    var y = doc.getElementById('y').innerHTML,
+        m = doc.getElementById('m').innerHTML,
+        d = doc.getElementById('d').innerHTML,
+        calc = doc.getElementById('calc'),
+        birth, milestones, today;
+
+
+    milestones = {
+        seconds: {
+            min: 500000000,
+            max: 3000000000,
+            getDate: function (b, m) {
+                return b.addSeconds(m);    
+            }
+        },
+        minutes: {
+            min: 5000000,
+            max: 50000000,
+            getDate: function (b, m) {
+                return b.addMinutes(m);    
+            }
+        },
+        hours: {
+            min: 100000,
+            max: 800000,
+            getDate: function (b, m) {
+                return b.addHours(m);    
+            }
+        },
+        days: {
+            min: 5000,
+            max: 35000,
+            getDate: function (b, m) {
+                return b.addDays(m);    
+            }
+        },
+        weeks: {
+            min: 500,
+            max: 5000,
+            getDate: function (b, m) {
+                return b.addWeeks(m);    
+            }
+        },
+        months: {
+            min: 100,
+            max: 1100,
+            getDate: function (b, m) {
+                return b.addMonths(m);    
+            }
+        },
+        years: {
+            min: 10,
+            max: 100,
+            getDate: function (b, m) {
+                return b.addYears(m);    
+            }
+        }
+    };
+    
+    birth = new Date();
+    today = new Date();
+    birth.setYear(y);
+    birth.setMonth(m);
+    birth.setDate(d);
+    birth.setHours(0);
+    birth.setMinutes(0);
+    //birth.setSeconds(0)
+
+
+    var list = [{
+            date: today,
+            html: _.template(
+                '<li><%= year %>-<%= month %>-<%= day %> <%= t %></li>',
+                    {
+                    't': 'Today. ',
+                    'day': (today.getDate() < 10 ? '0' : '') + (today.getDate()),
+                    'month': (today.getMonth() < 9 ? '0' : '') + (today.getMonth() + 1),
+                    'year': today.getFullYear() 
+                }
+            )
+        }];
+
+    _(milestones).forEach(function (milestone, unit) {
+
+        var m = milestone.min,
+            d, l; 
+
+        while (m <= milestone.max) {
+            
+            d = milestone.getDate(birth, m);
+            //console.log(d);
+            
+            l = {
+                date: d,
+                html: _.template(
+                    '<li>On <%= year %>-<%= month %>-<%= day %> you will be <%= m %> <%= unit %></li>',
+                    { 
+                        'unit': unit,
+                        'm': m,
+                        'day': (d.getDate() < 10 ? '0' : '') + (d.getDate()),
+                        'month': (d.getMonth() < 9 ? '0' : '') + (d.getMonth() + 1),
+                        'year': d.getFullYear() 
+                    }
+                )
+            };
+
+            list.push(l);
+
+            m += milestone.min;
+        }
+
+    });
+
+    list = _.sortBy(list, function(l) { return l.date; });
+
+    var html = '',
+        prev, last;
+
+    _(list).forEach(function (l) {
+        
+        last = l;
+
+        if (prev) {
+
+            if (prev.date.valueOf() === l.date.valueOf()) {
+                console.log(prev.html);
+            } else {
+                html += prev.html;
+            }
+
+            prev = l;
+
+        } else {
+            prev = l;
+        }
+
+    });
+
+    html += last.html;
+
+    calc.innerHTML = html;
+
+}(document));
+</script>
+</body>
+</html>
