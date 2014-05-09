@@ -46,108 +46,120 @@
 
 
 
-Date.prototype.addSeconds = function (h) {
-    var x = new Date(this);
-    x.setSeconds(x.getSeconds() + h);
-    return x;
-};
-
-Date.prototype.addMinutes = function (h) {
-    var x = new Date(this);
-    x.setMinutes(x.getMinutes() + h);
-    return x;
-};
-
-Date.prototype.addHours = function (h) {
-    var x = new Date(this);
-    x.setHours(x.getHours() + h);
-    return x;
-};
-
-Date.prototype.addDays = function (m) {
-    var x = new Date(this);
-    x.setDate(x.getDate() + m);
-    return x;
-};
-
-Date.prototype.addWeeks = function (m) {
-    var x = new Date(this);
-    x.setDate(x.getDate() + (m * 7));
-    return x;
-};
-
-Date.prototype.addMonths = function (m) {
-    var x = new Date(this);
-    x.setMonth(x.getMonth() + m);
-    return x;
-};
-
-Date.prototype.addYears = function (m) {
-    var x = new Date(this);
-    x.setFullYear(x.getFullYear() + m);
-    return x;
-};
 
 
 (function (doc) {
 
     'use strict';
 
+
+    Date.prototype.addSeconds = function (h) {
+        var d = new Date(this);
+        d.setSeconds(d.getSeconds() + h);
+        return d;
+    };
+
+    Date.prototype.addMinutes = function (h) {
+        var d = new Date(this);
+        d.setMinutes(d.getMinutes() + h);
+        return d;
+    };
+
+    Date.prototype.addHours = function (h) {
+        var d = new Date(this);
+        d.setHours(d.getHours() + h);
+        return d;
+    };
+
+    Date.prototype.addDays = function (m) {
+        var d = new Date(this);
+        d.setDate(d.getDate() + m);
+        return d;
+    };
+
+    Date.prototype.addWeeks = function (m) {
+        var d = new Date(this);
+        d.setDate(d.getDate() + (m * 7));
+        return d;
+    };
+
+    Date.prototype.addMonths = function (m) {
+        var d = new Date(this);
+        d.setMonth(d.getMonth() + m);
+        return d;
+    };
+
+    Date.prototype.addYears = function (m) {
+        var d = new Date(this);
+        d.setFullYear(d.getFullYear() + m);
+        return d;
+    };
+
+    Date.prototype.getFormattedMonth = function () {
+        return (this.getMonth() < 9 ? '0' : '') + (this.getMonth() + 1);
+    };
+
+    Date.prototype.getFormattedDate = function () {
+        return (this.getDate() < 10 ? '0' : '') + (this.getDate());
+    };
+
+
     var y = doc.getElementById('y').innerHTML,
         m = doc.getElementById('m').innerHTML,
         d = doc.getElementById('d').innerHTML,
         calc = doc.getElementById('calc'),
-        birth, milestones, today;
-
+        birth, milestones, today,
+        html = '', list,
+        prev, last;
 
     milestones = {
         seconds: {
             min: 500000000,
             max: 3000000000,
             getDate: function (b, m) {
-                return b.addSeconds(m);    
+                return b.addSeconds(m);
             }
         },
         minutes: {
             min: 5000000,
             max: 50000000,
             getDate: function (b, m) {
-                return b.addMinutes(m);    
+                return b.addMinutes(m);
             }
         },
         hours: {
             min: 100000,
             max: 800000,
             getDate: function (b, m) {
-                return b.addHours(m);    
+                return b.addHours(m);
             }
         },
         days: {
             min: 5000,
             max: 35000,
             getDate: function (b, m) {
-                return b.addDays(m);    
+                return b.addDays(m);
             }
         },
         weeks: {
             min: 500,
             max: 5000,
             getDate: function (b, m) {
-                return b.addWeeks(m);    
+                return b.addWeeks(m);
             }
         },
         months: {
             min: 100,
             max: 1100,
             getDate: function (b, m) {
-                return b.addMonths(m);    
+                return b.addMonths(m);
             }
         },
         years: {
             min: 10,
             max: 100,
             getDate: function (b, m) {
-                return b.addYears(m);    
+                return b.addYears(m);
             }
         }
     };
@@ -162,23 +174,23 @@ Date.prototype.addYears = function (m) {
     //birth.setSeconds(0)
 
 
-    var list = [{
+    list = [{
             date: today,
             html: _.template(
                 '<li><%= year %>-<%= month %>-<%= day %> <%= t %></li>',
                     {
                     't': 'Today. ',
-                    'day': (today.getDate() < 10 ? '0' : '') + (today.getDate()),
-                    'month': (today.getMonth() < 9 ? '0' : '') + (today.getMonth() + 1),
-                    'year': today.getFullYear() 
+                    'day': today.getFormattedDate(),
+                    'month': today.getFormattedMonth(),
+                    'year': today.getFullYear()
                 }
             )
-        }];
+            }];
 
     _(milestones).forEach(function (milestone, unit) {
 
         var m = milestone.min,
-            d, l; 
+            d, l;
 
         while (m <= milestone.max) {
             
@@ -188,16 +200,17 @@ Date.prototype.addYears = function (m) {
             l = {
                 date: d,
                 html: _.template(
-                    '<li>On <%= year %>-<%= month %>-<%= day %> you will be <%= m %> <%= unit %></li>',
-                    { 
+                    '<li>On <%= year %>-<%= month %>-<%= day %> you will be ' +
+                    '<%= m %> <%= unit %></li>',
+                    {
                         'unit': unit,
                         'm': m,
-                        'day': (d.getDate() < 10 ? '0' : '') + (d.getDate()),
-                        'month': (d.getMonth() < 9 ? '0' : '') + (d.getMonth() + 1),
-                        'year': d.getFullYear() 
+                        'day': d.getFormattedDate(),
+                        'month': d.getFormattedMonth(),
+                        'year': d.getFullYear()
                     }
                 )
-            };
+                };
 
             list.push(l);
 
@@ -206,10 +219,9 @@ Date.prototype.addYears = function (m) {
 
     });
 
-    list = _.sortBy(list, function(l) { return l.date; });
+    list = _.sortBy(list, function (l) { return l.date; });
 
-    var html = '',
-        prev, last;
+    
 
     _(list).forEach(function (l) {
         
