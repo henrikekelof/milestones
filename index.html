@@ -3,36 +3,59 @@
 <head>
     <meta charset="utf-8">
     <title>Milestones</title>
+
+    <style>
+
+    .date {
+        width: 20em;
+    }
+    .year-month {
+        background-color: #b54c4b;
+        color: #fff;
+    }
+    .day {
+        font-size: 6em;
+    }
+
+    </style>    
+
 </head>
 <body>
 
     <h1>Milestones</h1>
 
-    <div id="y">
-        1973
-    </div>
-    <div id="m">
-        4
-    </div>
-    <div id="d">
-        27
-    </div>
+    <label>
+        When were you born?
+        <input id="date-natural" type="text" placeholder="YYYY-MM-DD, HH:MM">
+    </label>
 
-    <div id="calc">
+    <label>
+        You were born on
+        <input id="date" type="date" value="1980-01-01">
+    </label>
+
+    <label>
+        at
+        <input id="time" type="time" value="12:00">
+    </label>
+
+        
+    <div class="date">
+        
+        <div class="year-month">2015 mars</div>
+
+        <div class="day">29</div>
+
+    </div>        
+
+    <div id="calc"></div>
 
 
-    Calculate dates
-
-
-    </div>
-
-
-
-    <div>
-
-    </div>
-
+<script src="jquery-2.0.3-minimal.min.js"></script>
 <script src="lodash.min.js"></script>
+<script src="date-en-US.js"></script>
+
+
 <script>
 /*global Date, _, console */
 //var array = [{id: 1 date: Mar 12 2012 10:00:00 AM}{id: 2 date: Mar 8 2012 08:00:00 AM}];
@@ -53,199 +76,320 @@
     'use strict';
 
 
-    Date.prototype.addSeconds = function (h) {
-        var d = new Date(this);
+    function addSeconds(_d, h) {
+        var d = new Date(_d);
         d.setSeconds(d.getSeconds() + h);
         return d;
-    };
+    }
 
-    Date.prototype.addMinutes = function (h) {
-        var d = new Date(this);
+    function addMinutes(_d, h) {
+        var d = new Date(_d);
         d.setMinutes(d.getMinutes() + h);
         return d;
-    };
+    }
 
-    Date.prototype.addHours = function (h) {
-        var d = new Date(this);
+    function addHours(_d, h) {
+        var d = new Date(_d);
         d.setHours(d.getHours() + h);
         return d;
-    };
+    }
 
-    Date.prototype.addDays = function (m) {
-        var d = new Date(this);
+    function addDays(_d, m) {
+        var d = new Date(_d);
         d.setDate(d.getDate() + m);
         return d;
-    };
+    }
 
-    Date.prototype.addWeeks = function (m) {
-        var d = new Date(this);
+    function addWeeks(_d, m) {
+        var d = new Date(_d);
         d.setDate(d.getDate() + (m * 7));
         return d;
-    };
+    }
 
-    Date.prototype.addMonths = function (m) {
-        var d = new Date(this);
+    function addMonths(_d, m) {
+        var d = new Date(_d);
         d.setMonth(d.getMonth() + m);
         return d;
-    };
+    }
 
-    Date.prototype.addYears = function (m) {
-        var d = new Date(this);
+    function addYears(_d, m) {
+        var d = new Date(_d);
         d.setFullYear(d.getFullYear() + m);
         return d;
-    };
+    }
 
-    Date.prototype.getFormattedMonth = function () {
-        return (this.getMonth() < 9 ? '0' : '') + (this.getMonth() + 1);
-    };
+    function getFormattedMonth(d) {
+        return (d.getMonth() < 9 ? '0' : '') + (d.getMonth() + 1);
+    }
 
-    Date.prototype.getFormattedDate = function () {
-        return (this.getDate() < 10 ? '0' : '') + (this.getDate());
-    };
+    function getFormattedDate(d) {
+        return (d.getDate() < 10 ? '0' : '') + (d.getDate());
+    }
 
 
-    var y = doc.getElementById('y').innerHTML,
-        m = doc.getElementById('m').innerHTML,
-        d = doc.getElementById('d').innerHTML,
+    var date = doc.getElementById('date').value,
+        time = doc.getElementById('time').value,
         calc = doc.getElementById('calc'),
-        birth, milestones, today,
+        birth, prevBirth, milestones, today,
         html = '', list,
-        prev, last;
+        prev, last, todayMilestone, milestoneMarkup, todayMarkup;
+
+    milestoneMarkup = '<li>On <%= year %>-<%= month %>-<%= day %> you will be ' +
+         '<%= m %> <%= unit %></li>';
+
+    todayMarkup = '<li>Today <%= year %>-<%= month %>-<%= day %> you are ' +
+         '<%= m %></li>';
+
+
+    today = new Date();
+
+    todayMilestone = {
+        date: today,
+        unit: null,
+        milestone: null,
+        getDate: function () {
+            return today;
+        }
+    };
 
     milestones = {
         seconds: {
             min: 500000000,
             max: 3000000000,
-            getDate: function (b, m) {
-                return b.addSeconds(m);
-            }
+            getDate: addSeconds
         },
         minutes: {
             min: 5000000,
             max: 50000000,
-            getDate: function (b, m) {
-                return b.addMinutes(m);
-            }
+            getDate: addMinutes
         },
         hours: {
             min: 100000,
             max: 800000,
-            getDate: function (b, m) {
-                return b.addHours(m);
-            }
+            getDate: addHours
         },
         days: {
             min: 5000,
             max: 35000,
-            getDate: function (b, m) {
-                return b.addDays(m);
-            }
+            getDate: addDays
         },
         weeks: {
             min: 500,
             max: 5000,
-            getDate: function (b, m) {
-                return b.addWeeks(m);
-            }
+            getDate: addWeeks
         },
         months: {
             min: 100,
             max: 1100,
-            getDate: function (b, m) {
-                return b.addMonths(m);
-            }
+            getDate: addMonths
         },
         years: {
             min: 10,
             max: 100,
-            getDate: function (b, m) {
-                return b.addYears(m);
-            }
+            getDate: addYears
         }
     };
     
-    birth = new Date();
-    today = new Date();
-    birth.setYear(y);
-    birth.setMonth(m);
-    birth.setDate(d);
-    birth.setHours(0);
-    birth.setMinutes(0);
-    //birth.setSeconds(0)
-
-
-    list = [{
-            date: today,
-            html: _.template(
-                '<li><%= year %>-<%= month %>-<%= day %> <%= t %></li>',
-                    {
-                    't': 'Today. ',
-                    'day': today.getFormattedDate(),
-                    'month': today.getFormattedMonth(),
-                    'year': today.getFullYear()
-                }
-            )
-            }];
-
-    _(milestones).forEach(function (milestone, unit) {
-
-        var m = milestone.min,
-            d, l;
-
-        while (m <= milestone.max) {
-            
-            d = milestone.getDate(birth, m);
-            //console.log(d);
-            
-            l = {
-                date: d,
-                html: _.template(
-                    '<li>On <%= year %>-<%= month %>-<%= day %> you will be ' +
-                    '<%= m %> <%= unit %></li>',
-                    {
-                        'unit': unit,
-                        'm': m,
-                        'day': d.getFormattedDate(),
-                        'month': d.getFormattedMonth(),
-                        'year': d.getFullYear()
-                    }
-                )
-                };
-
-            list.push(l);
-
-            m += milestone.min;
-        }
-
-    });
-
-    list = _.sortBy(list, function (l) { return l.date; });
-
+    //birth = new Date();
     
+    // birth.setYear(y);
+    // birth.setMonth(m);
+    // birth.setDate(d);
+    // birth.setHours(0);
+    // birth.setMinutes(0);
 
-    _(list).forEach(function (l) {
+    function drawMilestones(birth) {
+        console.log('Drawing');
+        var html = '';
         
-        last = l;
+        _(list).forEach(function (m, unit) {
+            
+            // html += _.template(
+            //     '<li>On <%= year %>-<%= month %>-<%= day %> you will be ' +
+            //     '<%= m %> <%= unit %></li>',
+                // {
+                //     'unit': m.unit,
+                //     'm': m.milestone,
+                //     'day': getFormattedDate(m.date),
+                //     'month': getFormattedMonth(m.date),
+                //     'year': m.date.getFullYear()
+                // }
+            // );
 
-        if (prev) {
-
-            if (prev.date.valueOf() === l.date.valueOf()) {
-                console.log(prev.html);
+            if (m.unit) {
+                html += _.template(milestoneMarkup, {
+                    'unit': m.unit,
+                    'm': m.milestone,
+                    'day': getFormattedDate(m.date),
+                    'month': getFormattedMonth(m.date),
+                    'year': m.date.getFullYear()
+                });
             } else {
-                html += prev.html;
+                console.log(today);
+                console.log(birth);
+                html += _.template(todayMarkup, {
+                    'unit': 'days',
+                    'm': Math.ceil((today - birth) / 60 / 60 / 24 / 1000) + ' days.',
+                    'day': getFormattedDate(m.date),
+                    'month': getFormattedMonth(m.date),
+                    'year': m.date.getFullYear()
+                });
             }
 
-            prev = l;
+        });
+        calc.innerHTML = html;
+    }
 
-        } else {
-            prev = l;
+    function recalculateMilestones(d) {
+        //console.log(d);
+        var newList = [],
+            todayPushed = false;
+        // todayMilestone
+
+        _(list).forEach(function (m, unit) {
+            //console.log(m);
+           // console.log(m);
+            if (m.unit) {
+                m.date = m.getDate(d, m.milestone);
+                if (!todayPushed && m.date > today) {
+                    newList.push(todayMilestone);
+                    todayPushed = true;        
+                }
+                newList.push(m);    
+            }
+            
+        });
+
+        list = newList;
+    }
+
+    function calculateMilestones(birth) {
+
+        // console.log(date + ', ' + time);
+        // console.log(date);
+        // console.log(time);
+        // console.log(birth);
+        //birth.setSeconds(0)
+
+        var mmm = [];
+
+        list = [todayMilestone];
+        // {
+        //         date: today,
+        //         html: _.template(
+        //             '<li><%= year %>-<%= month %>-<%= day %> <%= t %></li>',
+        //                 {
+        //                 't': 'Today. ',
+        //                 'day': getFormattedDate(today),
+        //                 'month': getFormattedMonth(today),
+        //                 'year': today.getFullYear()
+        //             }
+        //         )
+        //         }];
+
+        _(milestones).forEach(function (milestone, unit) {
+
+            var m = milestone.min,
+                d, l;
+
+            while (m <= milestone.max) {
+                
+                d = milestone.getDate(birth, m);
+                //console.log(d);
+                
+                l = {
+                    date: d,
+                    unit: unit,
+                    milestone: m,
+                    getDate: milestone.getDate
+                    // html: _.template(
+                    //     '<li>On <%= year %>-<%= month %>-<%= day %> you will be ' +
+                    //     '<%= m %> <%= unit %></li>',
+                    //     {
+                    //         'unit': unit,
+                    //         'm': m,
+                    //         'day': getFormattedDate(d),
+                    //         'month': getFormattedMonth(d),
+                    //         'year': d.getFullYear()
+                    //     }
+                    // )
+                };
+
+                list.push(l);
+
+                m += milestone.min;
+            }
+
+        });
+
+        list = _.sortBy(list, function (l) { return l.date; });
+
+        
+
+        _(list).forEach(function (l) {
+            
+            last = l;
+
+
+
+            if (prev) {
+
+                if (prev.date.valueOf() === l.date.valueOf()) {
+                    console.log(prev.html);
+                } else {
+                    mmm.push(prev);
+                }
+
+                prev = l;
+
+            } else {
+                prev = l;
+            }
+
+        });
+
+        mmm.push(last);
+
+        list = mmm.slice();
+        //calc.innerHTML = html;
+    }
+    
+
+    var bbb = Date.parse(date + ', ' + time);
+
+    calculateMilestones(bbb);
+
+    drawMilestones(bbb);
+    
+
+    var timeout;
+
+    $('#date-natural').on('keyup', function () {
+        var $this = $(this);
+        if (timeout) {
+            clearTimeout(timeout);
         }
+        timeout = setTimeout(function () {
 
+            var d = Date.parse($this.val());
+            //console.log(d);
+            if (d) {
+
+                if (d.valueOf() !== prevBirth) {
+
+                    $('#date').val(d.getFullYear() + '-' + getFormattedMonth(d) + '-' + getFormattedDate(d));
+                    $('#time').val(d.getHours() + ':' + d.getMinutes());
+                    recalculateMilestones(d);
+                    drawMilestones(d);
+
+                    prevBirth = d.valueOf();
+
+                }
+            }
+
+        }, 200);
     });
 
-    html += last.html;
-
-    calc.innerHTML = html;
 
 }(document));
 </script>
